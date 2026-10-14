@@ -27,9 +27,6 @@ intentionally deferred until the local gateway is working reliably.
 - Measure performance instead of inventing benchmark claims.
 - Keep secrets and full user prompts out of source control and logs.
 
-Detailed project goals and agent instructions are documented in
-[`AGENTS.md`](AGENTS.md).
-
 ## Roadmap
 
 1. CPU model serving and Go gateway
