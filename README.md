@@ -1,6 +1,6 @@
-# FluxQuay
+# InferQuay
 
-FluxQuay is a self-hosted AI inference gateway written in Go. It is designed as
+InferQuay is a self-hosted AI inference gateway written in Go. It is designed as
 a hands-on systems engineering project for learning bounded concurrency,
 backpressure, streaming inference, durable job processing, reliability, and
 observability on CPU-constrained hardware.
