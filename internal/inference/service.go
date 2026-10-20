@@ -14,9 +14,11 @@ var (
 )
 
 type Result struct {
-	Model        string
-	Response     string
-	PromptTokens int
+	Model         string
+	Response      string
+	PromptTokens  int
+	OutputTokens  int
+	TotalDuration time.Duration
 }
 
 type GenerateFunc func(ctx context.Context, model string, prompt string) (Result, error)

@@ -13,6 +13,8 @@ import (
 
 	"github.com/SaadShakeel1/inferquay/internal/api"
 	"github.com/SaadShakeel1/inferquay/internal/config"
+	"github.com/SaadShakeel1/inferquay/internal/inference"
+	"github.com/SaadShakeel1/inferquay/internal/ollama"
 )
 
 const (
@@ -42,9 +44,37 @@ func main() {
 }
 
 func run(ctx context.Context, cfg config.Config, logger *slog.Logger) error {
+	ollamaClient, err := ollama.NewClient(cfg.OllamaBaseURL, &http.Client{})
+	if err != nil {
+		return fmt.Errorf("create Ollama client: %w", err)
+	}
+
+	service, err := inference.NewService(
+		cfg.OllamaModel,
+		cfg.InferenceTimeout,
+		cfg.MaxConcurrentInference,
+		func(ctx context.Context, model, prompt string) (inference.Result, error) {
+			result, err := ollamaClient.Generate(ctx, model, prompt)
+			if err != nil {
+				return inference.Result{}, err
+			}
+
+			return inference.Result{
+				Model:         result.Model,
+				Response:      result.Response,
+				PromptTokens:  result.PromptTokens,
+				OutputTokens:  result.OutputTokens,
+				TotalDuration: result.TotalDuration,
+			}, nil
+		},
+	)
+	if err != nil {
+		return fmt.Errorf("create inference service: %w", err)
+	}
+
 	server := &http.Server{
 		Addr:              cfg.HTTPAddr,
-		Handler:           api.NewRouter(),
+		Handler:           api.NewRouter(service),
 		ReadHeaderTimeout: readHeaderTimeout,
 		IdleTimeout:       idleTimeout,
 		MaxHeaderBytes:    maxHeaderBytes,

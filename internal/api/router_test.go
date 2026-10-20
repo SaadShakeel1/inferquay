@@ -1,17 +1,32 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/SaadShakeel1/inferquay/internal/inference"
 )
+
+type fakeGenerator func(context.Context, string) (inference.Result, error)
+
+func (f fakeGenerator) Generate(ctx context.Context, prompt string) (inference.Result, error) {
+	return f(ctx, prompt)
+}
+
+func newTestRouter() http.Handler {
+	return NewRouter(fakeGenerator(func(context.Context, string) (inference.Result, error) {
+		return inference.Result{}, nil
+	}))
+}
 
 func TestHealth(t *testing.T) {
 	request := httptest.NewRequest(http.MethodGet, "/healthz", nil)
 	recorder := httptest.NewRecorder()
 
-	NewRouter().ServeHTTP(recorder, request)
+	newTestRouter().ServeHTTP(recorder, request)
 
 	if recorder.Code != http.StatusOK {
 		t.Fatalf(
@@ -80,7 +95,7 @@ func TestRouterRejectsUnsupportedRequests(t *testing.T) {
 			request := httptest.NewRequest(test.method, test.target, nil)
 			recorder := httptest.NewRecorder()
 
-			NewRouter().ServeHTTP(recorder, request)
+			newTestRouter().ServeHTTP(recorder, request)
 
 			if recorder.Code != test.wantStatus {
 				t.Fatalf(
