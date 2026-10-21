@@ -15,8 +15,12 @@ func TestRunReturnsServerStartupError(t *testing.T) {
 	logger := discardLogger()
 
 	cfg := config.Config{
-		HTTPAddr:        "invalid-address",
-		ShutdownTimeout: time.Second,
+		HTTPAddr:               "invalid-address",
+		OllamaBaseURL:          "http://localhost:11434",
+		OllamaModel:            "test-model",
+		InferenceTimeout:       time.Second,
+		MaxConcurrentInference: 1,
+		ShutdownTimeout:        time.Second,
 	}
 
 	err := run(context.Background(), cfg, logger)
@@ -33,8 +37,12 @@ func TestRunStopsWhenContextIsCancelled(t *testing.T) {
 	logger := discardLogger()
 
 	cfg := config.Config{
-		HTTPAddr:        "127.0.0.1:0",
-		ShutdownTimeout: time.Second,
+		HTTPAddr:               "127.0.0.1:0",
+		OllamaBaseURL:          "http://localhost:11434",
+		OllamaModel:            "test-model",
+		InferenceTimeout:       time.Second,
+		MaxConcurrentInference: 1,
+		ShutdownTimeout:        time.Second,
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
