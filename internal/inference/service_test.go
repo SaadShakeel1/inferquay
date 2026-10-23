@@ -7,6 +7,10 @@ import (
 	"time"
 )
 
+func unusedStream(context.Context, string, string, func(string) error) (Result, error) {
+	return Result{}, errors.New("unexpected stream call")
+}
+
 func TestServiceGenerate(t *testing.T) {
 	service, err := NewService(
 		"test-model",
@@ -22,6 +26,7 @@ func TestServiceGenerate(t *testing.T) {
 
 			return Result{Model: model, Response: "Hi!"}, nil
 		},
+		unusedStream,
 	)
 	if err != nil {
 		t.Fatalf("NewService() error: %v", err)
@@ -45,6 +50,7 @@ func TestServiceRejectsEmptyPrompt(t *testing.T) {
 			t.Fatal("generator called for empty prompt")
 			return Result{}, nil
 		},
+		unusedStream,
 	)
 	if err != nil {
 		t.Fatalf("NewService() error: %v", err)
@@ -74,6 +80,7 @@ func TestServiceRejectsExcessWork(t *testing.T) {
 				return Result{}, ctx.Err()
 			}
 		},
+		unusedStream,
 	)
 	if err != nil {
 		t.Fatalf("NewService() error: %v", err)
@@ -120,6 +127,7 @@ func TestServicePropagatesCancellation(t *testing.T) {
 			<-ctx.Done()
 			return Result{}, ctx.Err()
 		},
+		unusedStream,
 	)
 	if err != nil {
 		t.Fatalf("NewService() error: %v", err)
@@ -161,6 +169,7 @@ func TestServiceAppliesTimeout(t *testing.T) {
 			<-ctx.Done()
 			return Result{}, ctx.Err()
 		},
+		unusedStream,
 	)
 	if err != nil {
 		t.Fatalf("NewService() error: %v", err)

@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -14,6 +15,10 @@ type fakeGenerator func(context.Context, string) (inference.Result, error)
 
 func (f fakeGenerator) Generate(ctx context.Context, prompt string) (inference.Result, error) {
 	return f(ctx, prompt)
+}
+
+func (fakeGenerator) Stream(context.Context, string, func(string) error) (inference.Result, error) {
+	return inference.Result{}, errors.New("unexpected stream call")
 }
 
 func newTestRouter() http.Handler {
