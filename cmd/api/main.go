@@ -67,6 +67,19 @@ func run(ctx context.Context, cfg config.Config, logger *slog.Logger) error {
 				TotalDuration: result.TotalDuration,
 			}, nil
 		},
+		func(ctx context.Context, model, prompt string, onChunk func(string) error) (inference.Result, error) {
+			result, err := ollamaClient.Stream(ctx, model, prompt, onChunk)
+			if err != nil {
+				return inference.Result{}, err
+			}
+
+			return inference.Result{
+				Model:         result.Model,
+				PromptTokens:  result.PromptTokens,
+				OutputTokens:  result.OutputTokens,
+				TotalDuration: result.TotalDuration,
+			}, nil
+		},
 	)
 	if err != nil {
 		return fmt.Errorf("create inference service: %w", err)
